@@ -1,0 +1,3 @@
+#!/bin/bash
+SEED=`python -c "import time; print int(time.time())"`
+trial --random=$SEED tests
