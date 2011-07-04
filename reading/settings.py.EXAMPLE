@@ -1,0 +1,7 @@
+
+# mongo
+DBNAME = 'reading'
+
+# g-talk client
+JID = 'bot@gmail.com
+JID_PASSWORD = 's3cr3t'

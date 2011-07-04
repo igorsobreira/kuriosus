@@ -1,0 +1,6 @@
+*.pyc
+_trial_temp
+*.pid
+settings.py
+\#*
+\.\#*
