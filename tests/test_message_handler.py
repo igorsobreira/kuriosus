@@ -73,3 +73,12 @@ class MessageHandlerTests(BaseTestCase):
         handler = MessageHandler(self.connection)
         resp = yield handler.handle('list')
         self.assertIn(u'Your read list is still empty', resp)
+
+    @inlineCallbacks
+    def test_help_command(self):
+        handler = MessageHandler(self.connection)
+        resp = yield handler.handle('help')
+        self.assertIn('Available commands:', resp)
+        self.assertIn(' - read', resp)
+        self.assertIn(' - list', resp)
+        self.assertIn(' - help', resp)

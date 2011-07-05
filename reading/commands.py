@@ -1,10 +1,11 @@
 from twisted.internet.defer import inlineCallbacks
 
 def findAll():
-    return (AddReadDocument, ShowAllReadDocuments)
+    return (AddReadDocument, ShowAllReadDocuments, Help)
 
 class Command(object):
     pattern = r''
+    doc = u''
 
     def __init__(self, db, deferred):
         self.documents = db.documents
@@ -18,10 +19,17 @@ class Command(object):
 
 
 class Help(Command):
-    pattern = r'help'
+    pattern = r'^help$'
+    doc = u'help: show this help message'
+
+    def answer(self):
+        docs = u'\n - '.join(cmd.doc for cmd in findAll())
+        msg = u'Available commands:\n - ' + docs
+        self.finish(msg)
     
 class AddReadDocument(Command):
     pattern = r'^read (.*)'
+    doc = u'read: add a list as read'
 
     @inlineCallbacks
     def answer(self, data):
@@ -35,6 +43,7 @@ class AddReadDocument(Command):
 
 class ShowAllReadDocuments(Command):
     pattern = r'^list'
+    doc = u'list: show all read documents'
 
     @inlineCallbacks
     def answer(self):
