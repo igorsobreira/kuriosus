@@ -1,4 +1,5 @@
 Twisted==11.0.0
 wokkel==0.6.3
 pyOpenSSL==0.12
-git+https://github.com/fiorix/mongo-async-python-driver
+git+git://github.com/fiorix/mongo-async-python-driver.git
+fabric
