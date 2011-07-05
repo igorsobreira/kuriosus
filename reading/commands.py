@@ -1,3 +1,4 @@
+from datetime import datetime
 from twisted.internet.defer import inlineCallbacks
 
 def findAll():
@@ -38,7 +39,9 @@ class AddReadDocument(Command):
             url, title = data[0], None
         elif len(data) == 2:
             url, title = data
-        yield self.documents.insert({'url': data[0], 'title': title}, safe=True)
+        yield self.documents.insert({'url': data[0], 
+                                     'title': title,
+                                     'date': datetime.now()}, safe=True)
         self.finish('Saved')
 
 class ShowAllReadDocuments(Command):

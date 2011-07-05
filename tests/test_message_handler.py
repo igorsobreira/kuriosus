@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from twisted.trial import unittest
 from twisted.internet.defer import inlineCallbacks
 
@@ -40,8 +42,12 @@ class MessageHandlerTests(BaseTestCase):
         handler = MessageHandler(self.connection)
         resp = yield handler.handle('read http://twistedmatrix.com/trac/wiki')
         urls = yield self.documents.find({'url': 'http://twistedmatrix.com/trac/wiki'})
+        def format(d):
+            return d.strftime('d/m/Y')
+
         self.assertEqual('Saved', resp)
         self.assertEqual(1, len(urls))
+        self.assertEqual(format(urls[0]['date']), format(datetime.now()))
 
     @inlineCallbacks
     def test_read_command_should_save_url_with_title(self):
