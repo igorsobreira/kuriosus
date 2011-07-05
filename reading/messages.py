@@ -22,7 +22,7 @@ class MessageHandler(object):
         self.deferred = Deferred()
         for command in commands.findAll():
             pattern = re.compile(command.pattern)
-            match = pattern.match(message)
+            match = pattern.match(message.strip())
             if match:
                 args = match.groups()
                 command(self.connection[settings.DBNAME], self.deferred).answer(*args)

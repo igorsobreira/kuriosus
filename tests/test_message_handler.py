@@ -63,11 +63,13 @@ class MessageHandlerTests(BaseTestCase):
         self.assertEqual('Saved', resp1)
         self.assertEqual('Saved', resp2)
 
-        resp = yield handler.handle('read')
-        self.assertIn('Read documents', resp)
-        self.assertIn('http://twistedmatrix.com/trac/wiki', resp)
-        self.assertIn('http://www.mnot.net/cache_docs/', resp)
-        self.assertIn('Web Caching Docs', resp)
+        resp1 = yield handler.handle('read')
+        resp2 = yield handler.handle(' read  ')
+        self.assertEqual(resp1, resp2)
+        self.assertIn('Read documents', resp1)
+        self.assertIn('http://twistedmatrix.com/trac/wiki', resp1)
+        self.assertIn('http://www.mnot.net/cache_docs/', resp1)
+        self.assertIn('Web Caching Docs', resp1)
 
     @inlineCallbacks
     def test_empty_read_command_shows_message_when_no_documents_found(self):
