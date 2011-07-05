@@ -72,4 +72,4 @@ class MessageHandlerTests(BaseTestCase):
     def test_list_command_shows_message_when_no_documents_found(self):
         handler = MessageHandler(self.connection)
         resp = yield handler.handle('list')
-        self.assertIn(handler.messages['no_document_found'], resp)
+        self.assertIn(u'Your read list is still empty', resp)
