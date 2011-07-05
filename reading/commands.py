@@ -1,5 +1,8 @@
 from twisted.internet.defer import inlineCallbacks
 
+def findAll():
+    return (AddReadDocument, ShowAllReadDocuments)
+
 class Command(object):
     pattern = r''
 
@@ -14,6 +17,9 @@ class Command(object):
         self.deferred.callback(response)
 
 
+class Help(Command):
+    pattern = r'help'
+    
 class AddReadDocument(Command):
     pattern = r'^read (.*)'
 

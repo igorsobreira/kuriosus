@@ -20,8 +20,7 @@ class MessageHandler(object):
 
     def handle(self, message):
         self.deferred = Deferred()
-        commandList = self.findCommands()
-        for command in commandList:
+        for command in commands.findAll():
             pattern = re.compile(command.pattern)
             match = pattern.match(message)
             if match:
@@ -31,18 +30,6 @@ class MessageHandler(object):
         else:
             self.notFound()
         return self.deferred
-
-    def findCommands(self):
-        commandList = []
-        for objname in dir(commands):
-            obj = getattr(commands, objname)
-            if self.isCommand(obj):
-                commandList.append(obj)
-        return commandList
-
-    def isCommand(self, obj):
-        return isinstance(obj, type) and issubclass(obj, commands.Command) and \
-            obj is not commands.Command
 
     def notFound(self):
         return self.deferred.callback(self.messages['unkown_command'])
