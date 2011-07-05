@@ -54,7 +54,7 @@ class MessageHandlerTests(BaseTestCase):
         self.assertEqual(1, len(urls))
 
     @inlineCallbacks
-    def test_list_command_should_show_all_read_documents(self):
+    def test_empty_read_command_should_show_all_read_documents(self):
         handler = MessageHandler(self.connection)
         resp1 = yield handler.handle('read http://twistedmatrix.com/trac/wiki')
         resp2 = yield handler.handle('read http://www.mnot.net/cache_docs/ '
@@ -63,15 +63,16 @@ class MessageHandlerTests(BaseTestCase):
         self.assertEqual('Saved', resp1)
         self.assertEqual('Saved', resp2)
 
-        resp = yield handler.handle('list')
+        resp = yield handler.handle('read')
+        self.assertIn('Read documents', resp)
         self.assertIn('http://twistedmatrix.com/trac/wiki', resp)
         self.assertIn('http://www.mnot.net/cache_docs/', resp)
         self.assertIn('Web Caching Docs', resp)
 
     @inlineCallbacks
-    def test_list_command_shows_message_when_no_documents_found(self):
+    def test_empty_read_command_shows_message_when_no_documents_found(self):
         handler = MessageHandler(self.connection)
-        resp = yield handler.handle('list')
+        resp = yield handler.handle('read')
         self.assertIn(u'Your read list is still empty', resp)
 
     @inlineCallbacks
@@ -80,5 +81,4 @@ class MessageHandlerTests(BaseTestCase):
         resp = yield handler.handle('help')
         self.assertIn('Available commands:', resp)
         self.assertIn(' - read', resp)
-        self.assertIn(' - list', resp)
         self.assertIn(' - help', resp)

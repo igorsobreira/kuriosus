@@ -26,10 +26,10 @@ class Help(Command):
         docs = u'\n - '.join(cmd.doc for cmd in findAll())
         msg = u'Available commands:\n - ' + docs
         self.finish(msg)
-    
+
 class AddReadDocument(Command):
     pattern = r'^read (.*)'
-    doc = u'read: add a list as read'
+    doc = u'read [document url] [document title]: save read document. title is optional'
 
     @inlineCallbacks
     def answer(self, data):
@@ -42,8 +42,8 @@ class AddReadDocument(Command):
         self.finish('Saved')
 
 class ShowAllReadDocuments(Command):
-    pattern = r'^list'
-    doc = u'list: show all read documents'
+    pattern = r'^read$'
+    doc = u'read: show all read documents'
 
     @inlineCallbacks
     def answer(self):
