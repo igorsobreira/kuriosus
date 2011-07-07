@@ -9,6 +9,9 @@ Kuriosus works as a g-talk bot, just add the contact and start talking to it.
 
 Example:
 
+	me: help
+	... show available commands ...
+
 	me: read http://igorsobreira.com/blog/2011/2/6/adding-methods-dynamically-in-python/ Adding methods dynamically in python
 
 	me: read
