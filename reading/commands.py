@@ -2,7 +2,8 @@ from datetime import datetime, timedelta
 from twisted.internet.defer import inlineCallbacks
 
 def findAll():
-    return (AddReadDocument, ShowAllReadDocuments, Help, RemoveReadDocument)
+    return (Help, ShowOldReadDocuments, ShowTodaysReadDocuments, RemoveReadDocument, 
+            AddReadDocument)
 
 class Command(object):
     pattern = r''
@@ -44,20 +45,19 @@ class AddReadDocument(Command):
                                      'date': datetime.now()}, safe=True)
         self.finish('Saved')
 
-class ShowAllReadDocuments(Command):
-    pattern = r'^read$'
-    doc = u'read: show all read documents'
 
+class ShowDocuments(Command):
+    '''
+    Base class to commands that list documents filtering somehow
+    '''
     document_with_title = u' %(title)s\n %(url)s\n'
     document_without_title = u' %(url)s\n'
 
+    title = 'Documents'  # subclasses should implement this
+
     @inlineCallbacks
     def answer(self):
-        today = datetime.now().date()
-        today = datetime(today.year, today.month, today.day)
-        tomorrow = today + timedelta(days=1)
-        docs = yield self.documents.find({'date': {'$gte': today,
-                                                   '$lt': tomorrow}})
+        docs = yield self.documents.find(self.get_filter_spec())
         urls = []
         for doc in docs:
             if doc['title']:
@@ -67,10 +67,36 @@ class ShowAllReadDocuments(Command):
         if not urls:
             resp = u"Your read list is still empty."
         else:
-            resp = u'\nRead documents today:\n\n' + u'\n'.join(urls)
+            resp = u'\n'+ self.title +':\n\n' + u'\n'.join(urls)
 
         self.finish(resp)
-        
+
+    def get_filter_spec(self):
+        raise NotImplementedError
+
+class ShowTodaysReadDocuments(ShowDocuments):
+    pattern = r'^read$'
+    doc = u'read: show todays read documents'
+    title = u"Today's read documents"
+
+    def get_filter_spec(self):
+        today = datetime.now().date()
+        today = datetime(today.year, today.month, today.day)
+        tomorrow = today + timedelta(days=1)
+        return {'date': {'$gte': today, '$lt': tomorrow}}
+
+class ShowOldReadDocuments(ShowDocuments):
+    pattern = r'^read yesterday$'
+    doc = u'read yesterday: show yesterdays read documents'
+    title = u"Yesterday's read documents"
+
+    def get_filter_spec(self):
+        today = datetime.now().date()
+        today = datetime(today.year, today.month, today.day)
+        yesterday = today - timedelta(days=1)
+        return {'date': {'$gte': yesterday, '$lt': today}}
+
+
 class RemoveReadDocument(Command):
     pattern = r'^unread (.*)$'
     doc = 'unread [document url or title]: remove read document (no undo)'

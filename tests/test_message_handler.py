@@ -76,18 +76,36 @@ class ShowReadDocumentsTest(BaseTestCase):
         
         # third document is actually old
         yield self.documents.update({'url': 'http://old-document.com/doesnt-appear'},
-                                    {'$set': {'date': datetime.now()-timedelta(days=3) }},
-                                    safe=True)
+                                    {'$set': {'date': datetime.now()-timedelta(days=3)}})
 
         resp1 = yield handler.handle('read')
         resp2 = yield handler.handle(' read  ')
 
         self.assertEqual(resp1, resp2)
-        self.assertIn('Read documents', resp1)
+        self.assertIn("Today's read documents", resp1)
         self.assertIn('http://twistedmatrix.com/trac/wiki', resp1)
         self.assertIn('http://www.mnot.net/cache_docs/', resp1)
         self.assertIn('Web Caching Docs', resp1)
         self.assertNotIn('http://old-document.com/doesnt-appear', resp1)
+
+    @inlineCallbacks
+    def test_read_yesterday_show_read_commands_from_yesterday_only(self):
+        handler = MessageHandler(self.connection)
+        resp1 = yield handler.handle('read http://document.com/yesterday')
+        resp2 = yield handler.handle('read http://document.com/today')
+        resp3 = yield handler.handle('read http://document.com/few-days-later')
+
+        yield self.documents.update({'url': 'http://document.com/yesterday'},
+                                    {'$set': {'date': datetime.now()-timedelta(days=1)}})
+        yield self.documents.update({'url': 'http://document.com/few-days-later'},
+                                    {'$set': {'date': datetime.now()-timedelta(days=5)}})
+
+        resp = yield handler.handle('read yesterday')
+
+        self.assertIn("Yesterday's read documents", resp)
+        self.assertIn('http://document.com/yesterday', resp)
+        self.assertNotIn('http://document.com/today', resp)
+        self.assertNotIn('http://document.com/few-days-later', resp)
 
     @inlineCallbacks
     def test_empty_read_command_shows_message_when_no_documents_found(self):
