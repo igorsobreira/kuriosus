@@ -14,12 +14,12 @@ Example:
 	me: read
     	... show all your read documents from today ...
 
- 	 me: read yesterday
-    	 ... show all your read documents from yesterday ...
+ 	me: read yesterday
+    	... show all your read documents from yesterday ...
 
-	 me: toread http://igorsobreira.com/blog/2011/2/6/adding-methods-dynamically-in-python/
+	me: toread http://igorsobreira.com/blog/2011/2/6/adding-methods-dynamically-in-python/
 
-	 me: unread http://igorsobreira.com/blog/2011/2/6/adding-methods-dynamically-in-python/
+	me: unread http://igorsobreira.com/blog/2011/2/6/adding-methods-dynamically-in-python/
 
 Kuriosus in under development. At the moment you can run it yourself, soon I'll provide
 a public g-talk contact that you can add.
