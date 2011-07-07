@@ -37,6 +37,8 @@ class MessageHandlerTests(BaseTestCase):
         resp = yield handler.handle('foo bar')
         self.assertEqual(handler.messages['unkown_command'], resp)
 
+    # read (link) [title]
+
     @inlineCallbacks
     def test_read_command_should_save_new_url(self):
         handler = MessageHandler(self.connection)
@@ -58,6 +60,8 @@ class MessageHandlerTests(BaseTestCase):
                                           'title': 'Web Caching Docs'})
         self.assertEqual('Saved', resp)
         self.assertEqual(1, len(urls))
+
+    # read
 
     @inlineCallbacks
     def test_empty_read_command_should_show_all_read_documents(self):
@@ -83,6 +87,8 @@ class MessageHandlerTests(BaseTestCase):
         resp = yield handler.handle('read')
         self.assertIn(u'Your read list is still empty', resp)
 
+    # help
+
     @inlineCallbacks
     def test_help_command(self):
         handler = MessageHandler(self.connection)
@@ -90,3 +96,67 @@ class MessageHandlerTests(BaseTestCase):
         self.assertIn('Available commands:', resp)
         self.assertIn(' - read', resp)
         self.assertIn(' - help', resp)
+
+    # unread (url|title)
+
+    @inlineCallbacks
+    def test_unread_command_should_remove_by_url(self):
+        handler = MessageHandler(self.connection)
+        resp = yield handler.handle('read http://twistedmatrix.com/trac/wiki')
+        self.assertEqual('Saved', resp)
+
+        count = yield self.documents.count()
+        self.assertEqual(1, count)
+
+        resp = yield handler.handle('unread http://twistedmatrix.com/trac/wiki')
+        self.assertEqual('1 document removed', resp)
+
+        count = yield self.documents.count()
+        self.assertEqual(0, count)
+
+    @inlineCallbacks
+    def test_unread_command_should_remove_by_title(self):
+        handler = MessageHandler(self.connection)
+        resp = yield handler.handle('read http://twistedmatrix.com/trac/wiki '
+                                    'Twisted Wiki')
+        self.assertEqual('Saved', resp)
+
+        count = yield self.documents.count()
+        self.assertEqual(1, count)
+
+        resp = yield handler.handle('unread Twisted Wiki')
+        self.assertEqual('1 document removed', resp)
+
+        count = yield self.documents.count()
+        self.assertEqual(0, count)
+
+    @inlineCallbacks
+    def test_unread_command_shouldnt_remove_anything_if_not_found(self):
+        handler = MessageHandler(self.connection)
+        resp1 = yield handler.handle('read http://twistedmatrix.com/trac/wiki')
+        resp2 = yield handler.handle('read http://www.mnot.net/cache_docs/ '
+                                     'Web Caching Docs')
+        count = yield self.documents.count()
+        self.assertEqual(2, count)
+        
+        resp = yield handler.handle('unread nothing')
+        self.assertEqual('0 documents removed', resp)
+
+        count = yield self.documents.count()
+        self.assertEqual(2, count)
+
+    @inlineCallbacks
+    def test_unread_command_should_remove_all_docs_found(self):
+        handler = MessageHandler(self.connection)
+        resp1 = yield handler.handle('read http://twistedmatrix.com/trac/wiki '
+                                     'Good doc')
+        resp2 = yield handler.handle('read http://www.mnot.net/cache_docs/ '
+                                     'Good doc')
+        count = yield self.documents.count()
+        self.assertEqual(2, count)
+        
+        resp = yield handler.handle('unread Good doc')
+        self.assertEqual('2 documents removed', resp)
+
+        count = yield self.documents.count()
+        self.assertEqual(0, count)

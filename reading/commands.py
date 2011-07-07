@@ -2,7 +2,7 @@ from datetime import datetime
 from twisted.internet.defer import inlineCallbacks
 
 def findAll():
-    return (AddReadDocument, ShowAllReadDocuments, Help)
+    return (AddReadDocument, ShowAllReadDocuments, Help, RemoveReadDocument)
 
 class Command(object):
     pattern = r''
@@ -48,15 +48,18 @@ class ShowAllReadDocuments(Command):
     pattern = r'^read$'
     doc = u'read: show all read documents'
 
+    document_with_title = u' %(title)s\n %(url)s\n'
+    document_without_title = u' %(url)s\n'
+
     @inlineCallbacks
     def answer(self):
         docs = yield self.documents.find()
         urls = []
         for doc in docs:
             if doc['title']:
-                urls.append(' - %s\n   %s' % (doc['url'], doc['title']))
+                urls.append(self.document_with_title % doc)
             else:
-                urls.append(' - %s' % doc['url'])
+                urls.append(self.document_without_title % doc)
         if not urls:
             resp = u"Your read list is still empty."
         else:
@@ -64,3 +67,19 @@ class ShowAllReadDocuments(Command):
 
         self.finish(resp)
         
+class RemoveReadDocument(Command):
+    pattern = r'^unread (.*)$'
+    doc = 'unread [document url or title]: remove read document (no undo)'
+
+    @inlineCallbacks
+    def answer(self, url_or_title):
+        docs = yield self.documents.find({'$or': [
+                    {'url': url_or_title},
+                    {'title': url_or_title},
+                    ]})
+        length = len(docs)
+        plural = '' if length == 1 else 's'
+        if length > 0:
+            ids = [doc['_id'] for doc in docs]
+            yield self.documents.remove({'_id': {'$in': ids} })
+        self.finish('%s document%s removed' % (length, plural))
