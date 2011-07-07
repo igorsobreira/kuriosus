@@ -29,13 +29,13 @@ Installing
 
 Your need a MongoDB server running.
 
-     $ pip install -r requirements.txt
-     $ cp kuriosus/settings.py.EXAMPLE kuriosus/settings.py
+    $ pip install -r requirements.txt
+    $ cp kuriosus/settings.py.EXAMPLE kuriosus/settings.py
 
 create a g-talk account (@gmail.com or whatever) and fill the settings
 
-     $ scripts/start
+    $ scripts/start
 
 To run tests:
 
-     $ scripts/runtests
+    $ scripts/runtests
