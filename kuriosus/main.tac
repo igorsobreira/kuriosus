@@ -7,8 +7,8 @@ from twisted.internet.defer import inlineCallbacks
 from wokkel import client, xmppim
 import txmongo
 
-from reading.messages import MessageHandler
-from reading import settings
+from kuriosus.messages import MessageHandler
+from kuriosus import settings
 
 jid = JID(settings.JID)
 password = settings.JID_PASSWORD

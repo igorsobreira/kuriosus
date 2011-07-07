@@ -9,17 +9,17 @@ logfile = virtualenv_dir + '/twistd.log'
 pidfile = virtualenv_dir + '/twistd.pid'
 
 def deploy():
-    local("tar -czf /tmp/reading-package.tgz "
+    local("tar -czf /tmp/kuriosus-package.tgz "
           "--exclude=tests --exclude=.git --exclude=_trial_temp --exclude=*.pyc .")
-    put('/tmp/reading-package.tgz', '/tmp/')
+    put('/tmp/kuriosus-package.tgz', '/tmp/')
     run('mkdir -p %s' % project_dir)
     with cd(project_dir):
-        run('tar pxzvf /tmp/reading-package.tgz')
+        run('tar pxzvf /tmp/kuriosus-package.tgz')
         run('../bin/pip install -r requirements.txt')
 
 def start():
     with cd(project_dir):
-        run('../bin/twistd --logfile=%s --pidfile=%s --python=reading/main.tac'
+        run('../bin/twistd --logfile=%s --pidfile=%s --python=kuriosus/main.tac'
             % (logfile, pidfile))
 
 def stop():

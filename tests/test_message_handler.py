@@ -5,8 +5,8 @@ from twisted.internet.defer import inlineCallbacks
 
 import txmongo
 
-from reading.messages import MessageHandler
-from reading import settings
+from kuriosus.messages import MessageHandler
+from kuriosus import settings
 
 class BaseTestCase(unittest.TestCase):
 

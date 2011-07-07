@@ -4,8 +4,8 @@ import types
 import txmongo
 from twisted.internet.defer import inlineCallbacks, Deferred
 
-from reading import settings
-from reading import commands
+from kuriosus import settings
+from kuriosus import commands
 
 class MessageHandler(object):
 

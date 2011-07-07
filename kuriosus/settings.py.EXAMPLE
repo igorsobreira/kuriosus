@@ -1,6 +1,6 @@
 
 # mongo
-DBNAME = 'reading'
+DBNAME = 'kuriosus'
 
 # g-talk client
 JID = 'bot@gmail.com

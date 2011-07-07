@@ -1,4 +1,4 @@
 
 From project root run:
 
-$ reading/scripts/start
+$ kuriosus/scripts/start

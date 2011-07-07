@@ -1,2 +1,2 @@
 #!/bin/bash
-twistd -noy reading/main.tac
+twistd -noy kuriosus/main.tac
