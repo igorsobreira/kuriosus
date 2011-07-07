@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from twisted.trial import unittest
 from twisted.internet.defer import inlineCallbacks
@@ -29,7 +29,7 @@ class BaseTestCase(unittest.TestCase):
     def restoreDBNAME(self):
         settings.DBNAME = self.original_DBNAME
 
-class MessageHandlerTests(BaseTestCase):
+class UnkownCommandTest(BaseTestCase):
 
     @inlineCallbacks
     def test_unkown_command(self):
@@ -37,7 +37,7 @@ class MessageHandlerTests(BaseTestCase):
         resp = yield handler.handle('foo bar')
         self.assertEqual(handler.messages['unkown_command'], resp)
 
-    # read (link) [title]
+class ReadCommandTest(BaseTestCase):
 
     @inlineCallbacks
     def test_read_command_should_save_new_url(self):
@@ -61,25 +61,33 @@ class MessageHandlerTests(BaseTestCase):
         self.assertEqual('Saved', resp)
         self.assertEqual(1, len(urls))
 
-    # read
+class ShowReadDocumentsTest(BaseTestCase):
 
     @inlineCallbacks
-    def test_empty_read_command_should_show_all_read_documents(self):
+    def test_empty_read_command_should_show_todays_read_documents(self):
         handler = MessageHandler(self.connection)
         resp1 = yield handler.handle('read http://twistedmatrix.com/trac/wiki')
         resp2 = yield handler.handle('read http://www.mnot.net/cache_docs/ '
                                      'Web Caching Docs')
+        resp3 = yield handler.handle('read http://old-document.com/doesnt-appear')
 
-        self.assertEqual('Saved', resp1)
-        self.assertEqual('Saved', resp2)
+        self.assertEqual(('Saved', 'Saved', 'Saved'),
+                         (resp1, resp2, resp3))
+        
+        # third document is actually old
+        yield self.documents.update({'url': 'http://old-document.com/doesnt-appear'},
+                                    {'$set': {'date': datetime.now()-timedelta(days=3) }},
+                                    safe=True)
 
         resp1 = yield handler.handle('read')
         resp2 = yield handler.handle(' read  ')
+
         self.assertEqual(resp1, resp2)
         self.assertIn('Read documents', resp1)
         self.assertIn('http://twistedmatrix.com/trac/wiki', resp1)
         self.assertIn('http://www.mnot.net/cache_docs/', resp1)
         self.assertIn('Web Caching Docs', resp1)
+        self.assertNotIn('http://old-document.com/doesnt-appear', resp1)
 
     @inlineCallbacks
     def test_empty_read_command_shows_message_when_no_documents_found(self):
@@ -87,7 +95,7 @@ class MessageHandlerTests(BaseTestCase):
         resp = yield handler.handle('read')
         self.assertIn(u'Your read list is still empty', resp)
 
-    # help
+class HelpCommandTest(BaseTestCase):
 
     @inlineCallbacks
     def test_help_command(self):
@@ -97,7 +105,7 @@ class MessageHandlerTests(BaseTestCase):
         self.assertIn(' - read', resp)
         self.assertIn(' - help', resp)
 
-    # unread (url|title)
+class UnreadCommandTest(BaseTestCase):
 
     @inlineCallbacks
     def test_unread_command_should_remove_by_url(self):

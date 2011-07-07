@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from twisted.internet.defer import inlineCallbacks
 
 def findAll():
@@ -53,7 +53,11 @@ class ShowAllReadDocuments(Command):
 
     @inlineCallbacks
     def answer(self):
-        docs = yield self.documents.find()
+        today = datetime.now().date()
+        today = datetime(today.year, today.month, today.day)
+        tomorrow = today + timedelta(days=1)
+        docs = yield self.documents.find({'date': {'$gte': today,
+                                                   '$lt': tomorrow}})
         urls = []
         for doc in docs:
             if doc['title']:
@@ -63,7 +67,7 @@ class ShowAllReadDocuments(Command):
         if not urls:
             resp = u"Your read list is still empty."
         else:
-            resp = u'Read documents\n' + u'\n'.join(urls)
+            resp = u'\nRead documents today:\n\n' + u'\n'.join(urls)
 
         self.finish(resp)
         
